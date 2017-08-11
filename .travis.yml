@@ -25,8 +25,8 @@ script:
 - mvn install
 after_success:
 - echo 'after_success step...'
-- ls -l
-- ls -l target/
+- ls -l 104isgd-dev-sms2-api/
+- ls -l 104isgd-dev-sms2-api/target/
 - docker --version
 - echo 'install aws cli'
 - pip3 install --user awscli
