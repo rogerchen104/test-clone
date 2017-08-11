@@ -1,12 +1,12 @@
 [submodule "104isgd-dev-sms2-dao"]
 	path = 104isgd-dev-sms2-dao
-	url = https://github.com/104corp/104isgd-dev-sms2-dao.git
+	url = git@github.com:104corp/104isgd-dev-sms2-dao.git
 	ignore = all
 [submodule "104isgd-dev-sms2-service"]
 	path = 104isgd-dev-sms2-service
-	url = https://github.com/104corp/104isgd-dev-sms2-service.git
+	url = git@github.com:104corp/104isgd-dev-sms2-service.git
 	ignore = all
 [submodule "104isgd-dev-sms2-api"]
 	path = 104isgd-dev-sms2-api
-	url = https://github.com/104corp/104isgd-dev-sms2-api.git
+	url = git@github.com:104corp/104isgd-dev-sms2-api.git
 	ignore = all
