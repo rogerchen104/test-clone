@@ -15,10 +15,10 @@
                 "bash -c 'touch /app.jar'"
             ],
             "entryPoint": [
-                "\"java\"",
-                "\"-Djava.security.egd=file:/dev/./urandom\"",
-                "\"-jar\"",
-                "\"/app.jar\""
+                "java",
+                "-Djava.security.egd=file:/dev/./urandom",
+                "-jar",
+                "/app.jar"
             ],
             "name": "{ECS_CONTAINER_NAME}",
             "image": "{ECR_REPOSITORY_DOMAIN}/{DOCKER_IMAGE}:latest",
