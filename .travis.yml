@@ -55,6 +55,6 @@ after_success:
     export NEW_TASK_VERSION=$(cat ./TASK-NEW.json|python3 -c "import sys, json; print(json.load(sys.stdin)['taskDefinition']['taskDefinitionArn'])");
     echo "*** new-task-version=${NEW_TASK_VERSION} ***"; 
     echo "*** update ecs service***";
-    aws ecs update-service --service sms-api --task-definition ${NEW_TASK_VERSION} --desired-count 1  --cluster  wales-test;
+    aws ecs update-service --service ${SERVICE_NAME} --task-definition ${NEW_TASK_VERSION} --desired-count 1  --cluster  wales-test;
     fi
   - echo `date`
