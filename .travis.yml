@@ -21,7 +21,7 @@ notifications:
 before_install:
 - set -e
 script:
-- echo 'script step...'
+- echo 'script step....'
 - mvn install
 after_success:
 - echo 'after_success step...'
