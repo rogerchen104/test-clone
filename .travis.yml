@@ -2,11 +2,11 @@ sudo: required
 language: java
 branches:
   only:
-  - master
+   - master
 env:
-  global: 
+   - JDK=openjdk8
 services:
-- docker
+ - docker
 cache:
   directories:
   - "$HOME/.m2"
@@ -14,8 +14,7 @@ notifications:
   email: false
   slack:
     template:
-    - Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}@%{branch}
-      by %{author} %{result} in %{duration}
+    - Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}@%{branch} by %{author} %{result} in %{duration}
     rooms:
       secure: ZwVsmAn6lU1jLQ9rmqSBXF/+ZA3IGa95Pzaj15YMzA3rKDGtARLR5Aek+Kwt0g89yzzAJWgDCxyDqQwT+gzpEXKYxYiozkle90uNHQ+V8zVJSUjUH8XBzLccfpJrZlpxUgc7Dfp6orxI9g9GNzb8FmpLRVTsHTTHfdX5UKt+9M1fOkhH2NHtpsOl+vMavnkPTz5DfaFe9ceGHwwY/6rfLVAcA2ZPuX2t1iOU5nrEhl/OmC1D2irsvcCVE62vuMAkDy9yg7U8pNqflHp9j9Jyl4CZu+Z1WvP4WcpqJ3W3kmMCOIlav+RGA0vR72exWcABDaVWI7IPU+tzGLauTDtCo7C6SYSbBYToXTcP+fdR0GPBC1Olzl7l5nMhZpK5KyIV1DLtbAALMQk4rqazeF8DP0CSI+kQSAxj1RdHxtZekXQjGYMuFr8K9JOR3pPBw2Y9QKDuXDWJ42/4wWZ2e1NBxbHfeSA7LpeZrshbAJ9LXVjBEh2A3bL6Bm87SjrvdCF15v6PFWnrbGM86YcL35AkoLyITxLbms+IPV0yCeK6zycYUN6X4IjeKcJRKlDkMt0XxmpddVcM41aLEkulx82NyfyEpgwMbA2Wi2SMbmXoru74uXwuc6nHg1CYtIK0OfByxGDAM7Uz3CR4UZc5rp5ee/zvw8aZc21YifgelkKGb7E=
 before_install:
