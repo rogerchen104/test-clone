@@ -1,4 +1,5 @@
-# e104-sms 
+# e104-sms  
+[![Build Status](https://travis-ci.com/104corp/104isgd-dev-sms2.svg?token=xa7MXxjsxHfihJxzQohj&branch=master)](https://travis-ci.com/104corp/104isgd-dev-sms2)
 ## module structure
 ```
 ---- e104-sms
