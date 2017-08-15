@@ -1,0 +1,59 @@
+sudo: required
+language: java
+branches:
+  only:
+   - master
+env:
+   - JDK=openjdk8
+services:
+ - docker
+cache:
+  directories:
+  - "$HOME/.m2"
+notifications:
+  email: false
+  slack:
+    template:
+    - Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}@%{branch} by %{author} %{result} in %{duration}
+    rooms:
+      secure: ZwVsmAn6lU1jLQ9rmqSBXF/+ZA3IGa95Pzaj15YMzA3rKDGtARLR5Aek+Kwt0g89yzzAJWgDCxyDqQwT+gzpEXKYxYiozkle90uNHQ+V8zVJSUjUH8XBzLccfpJrZlpxUgc7Dfp6orxI9g9GNzb8FmpLRVTsHTTHfdX5UKt+9M1fOkhH2NHtpsOl+vMavnkPTz5DfaFe9ceGHwwY/6rfLVAcA2ZPuX2t1iOU5nrEhl/OmC1D2irsvcCVE62vuMAkDy9yg7U8pNqflHp9j9Jyl4CZu+Z1WvP4WcpqJ3W3kmMCOIlav+RGA0vR72exWcABDaVWI7IPU+tzGLauTDtCo7C6SYSbBYToXTcP+fdR0GPBC1Olzl7l5nMhZpK5KyIV1DLtbAALMQk4rqazeF8DP0CSI+kQSAxj1RdHxtZekXQjGYMuFr8K9JOR3pPBw2Y9QKDuXDWJ42/4wWZ2e1NBxbHfeSA7LpeZrshbAJ9LXVjBEh2A3bL6Bm87SjrvdCF15v6PFWnrbGM86YcL35AkoLyITxLbms+IPV0yCeK6zycYUN6X4IjeKcJRKlDkMt0XxmpddVcM41aLEkulx82NyfyEpgwMbA2Wi2SMbmXoru74uXwuc6nHg1CYtIK0OfByxGDAM7Uz3CR4UZc5rp5ee/zvw8aZc21YifgelkKGb7E=
+before_install:
+- set -e
+script:
+- echo 'script step....'
+- mvn install
+after_success:
+  - echo 'after_success step...'
+  - docker --version
+  - mkdir -p /home/travis/.aws
+  - sed 's/{AWS_REGION}/'"${REGION}"'/g' $TRAVIS_BUILD_DIR/.aws/credentials > ~/.aws/credentials;
+  - sed 's/{AWS_REGION}/'"${REGION}"'/g' $TRAVIS_BUILD_DIR/.aws/config > ~/.aws/config;
+  - echo 'install aws cli'
+  - pip3 install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin;
+  - echo '*** login to aws ecr and start upload to ecr, deploy to ecs ***';
+  - eval $(aws ecr get-login --no-include-email --region ${REGION});
+  - if [[ $TRAVIS_BRANCH == "master" ]]; then 
+    export LAST_TAG=$(git describe $(git rev-list --tags --max-count=1)); 
+    echo "*** git last tag:${LAST_TAG} ***"; 
+    echo "*** build docker image and push to ecr ***"; 
+    docker build -t ${DOCKER_IMAGE} .; 
+    docker tag ${DOCKER_IMAGE}:latest ${ECR_REPOSITORY_DOMAIN}/${DOCKER_IMAGE}:latest; 
+    docker tag ${DOCKER_IMAGE}:latest ${ECR_REPOSITORY_DOMAIN}/${DOCKER_IMAGE}:${LAST_TAG}; 
+    docker push ${ECR_REPOSITORY_DOMAIN}/${DOCKER_IMAGE}:latest; 
+    docker push ${ECR_REPOSITORY_DOMAIN}/${DOCKER_IMAGE}:${LAST_TAG};
+    echo "*** add new version to ecs task definition ***"; 
+    sed -i -e 's/{ECS_TASK_DEFINITION_NAME}/'"${ECS_TASK_DEFINITION_NAME}"'/g' .ecs-update-service.json; 
+    sed -i -e 's/{ECS_CONTAINER_NAME}/'"${ECS_CONTAINER_NAME}"'/g' .ecs-update-service.json; 
+    sed -i -e 's/{ECR_REPOSITORY_DOMAIN}/'"${ECR_REPOSITORY_DOMAIN}"'/g' .ecs-update-service.json; 
+    sed -i -e 's/{DOCKER_IMAGE}/'"${DOCKER_IMAGE}"'/g' .ecs-update-service.json;
+    echo "***run ecs register-task-definition***"; 
+    aws ecs register-task-definition --cli-input-json file://.ecs-update-service.json > ./TASK-NEW.json;
+    echo "*** task definition new version content ***"; 
+    cat ./TASK-NEW.json;
+    export NEW_TASK_VERSION=$(cat ./TASK-NEW.json|python3 -c "import sys, json; print(json.load(sys.stdin)['taskDefinition']['taskDefinitionArn'])");
+    echo "*** new-task-version=${NEW_TASK_VERSION} ***"; 
+    echo "*** update ecs service***";
+    aws ecs update-service --service ${SERVICE_NAME} --task-definition ${NEW_TASK_VERSION} --desired-count 1  --cluster  wales-test;
+    fi
+  - echo `date`
